@@ -14,6 +14,37 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
+  id String @id @default(uuid())
   name String
+  email String @unique
+  role Role @default(BASIC)
+  posts Post[] @relation("posts")
+  likedPosts Post[] @relation("likedPosts")
+  userPref UserPref? @relation(fields: [userPrefId], references: [id])
+  userPrefId String? @unique
+
+  @@index([email])
+}
+
+model Post {
+  id String @id @default(uuid())
+  authorId String
+  author User @relation("posts", fields: [authorId], references: [id]) //link between models
+  title String
+  message String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  likedById String?
+  likedBy User? @relation("likedPosts", fields: [likedById], references: [id])
+}
+
+model UserPref {
+  id String @id @default(uuid())
+  emailNews Boolean
+  user User?
+}
+
+enum Role {
+  BASIC
+  ADMIN
 }
